@@ -90,7 +90,7 @@ The code of the complete implementations is here: [https://github.com/stlab/libr
 
 Another problem with raw synchronization primitives is that their use can have a large negative impact on system performance. To understand why, we need to understand Amdahl's Law.
 
-The intuition behind Amdahl's Law is that if a part of system takes time x to complete on a single core or processor, then it will encounter a speedup of y if it is run on y cores, but only if no synchronization takes places between the different cores. This speedup is in most of the cases an ideal that is never reachable because even if no synchronization is expressed in the program code, there are synchronization mechanisms on the chip or the board, like memory bus, etc.
+The intuition behind Amdahl's Law is that if a part of system takes time x to complete on a single core or processor, then it will encounter a speedup of y if it is run on y cores, but only if no synchronization takes places between the different cores or processors. This speedup is in most of the cases an ideal that is never reachable because even if no synchronization is expressed in the program code, there are synchronization mechanisms on the chip or the board, like memory bus, etc.
 
 $$ S(N) = \frac{1}{(1-P)+\frac{P}{N}} $$
 Where the speedup $$S$$ is defined by this equation. $$P$$ is hereby the amount of synchronization in the range of $$[0 .. 1]$$ and $$N$$ the number of cores or processors.
@@ -104,6 +104,8 @@ Amdahl's Law Logarithmic Scale
 ![Amdahl's Law](figures/amdahl_lin.png) 
 
 Amdahl's Law Linear Scale
+
+Since most of the desktop or mobile processors have less 64 cores, it is better to take a look at the graph with linear scale. Each line here represents just 10% of serialisation. So if the application just have 10% of serialisation and it is running on 16 cores then there is a speed-up just a little better than a 6x. So Amdahl's law sucks right right it bites us okay and serialization doesn't mean locking on mutex utilization can just mean sharing the same memory right or sharing the same address bus for them for the memory if I don't have a Numa architecture okay or sharing the same cache line right anything that's shared within the processor starts to bend that curve down and it bends down rapidly any synchronization anatomic bends that curve down.
 
 {::comment}
 Math experiment for Fibonacci matrix.
