@@ -120,7 +120,7 @@ That is a horrible horrible way to think about threading. The goal has to be to 
 
 
 So let's take a look at a traditional little piece of code here. 
-~~~C++
+~~~c++
 class registry {
     mutex _mutex;
     unordered_map<string, string> _map;
@@ -139,8 +139,7 @@ class registry {
 
 It is a registry class with shared set and a get functions where the access to the underlying unordered map is protected against concurrent access with a mutex. At the first glance it seems that only minimal work is done under the mutex. The unordered map is a fairly efficient data structure, it is a hash map. The amount of time it takes to hash the key depends on the length of the string. So the work that is being done under the lock here is actually fairly unbounded. It depends completely on the lengths of the string. It may be  probably typically small but it could be big. On top of calculating the hash comes a potentially allocation of a new bucket within the unordered map, which in most cases requires another lock within the memory manager.
 
-For a better understanding what shall be actually achieved by using the locks it is necessary to take step back. The C++ standard states here: “It can be shown that programs that correctly use mutexes and memory_order_seq_cst operations to prevent all data races and use no other synchronization operations behave as if the operations executed by their constituent threads were simply interleaved, with each value computation of an object being taken from the last side effect on that object in that interleaving. This is normally referred to as ‘sequential consistency.’”, C++11 Standard 1.10.21.
-
+For a better understanding what shall be actually achieved by using the locks it is necessary to take step back. The C++ standard states here: _It can be shown that programs that correctly use mutexes and memory_order_seq_cst operations to prevent all data races and use no other synchronization operations behave as if the operations executed by their constituent threads were simply interleaved, with each value computation of an object being taken from the last side effect on that object in that interleaving. This is normally referred to as ‘sequential consistency.’_, C++11 Standard 1.10.21.
 
 
 {::comment}
