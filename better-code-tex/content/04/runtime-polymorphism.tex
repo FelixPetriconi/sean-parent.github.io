@@ -1,0 +1,19 @@
+Object-oriented programming has been one of the paradigms supported by C++ from its invention. The idea of type inheritance and virtual functions were borrowed from Simula\footnote{Bjarne Stroustrup. "A History of C++: 1979-1991." \textit{History of Programming Language Two} (Addison-Wesley, 1995), http://www.stroustrup.com/hopl2.pdf}. Inheritance can represent a subtype or protocol relationship. Although the two are closely related, in this chapter we're primarily concerned with subtype relationships through class inheritance. Protocols are discussed in the next chapter. \comment{link}l
+
+With a subtype, or \textit{is-a}, relationship a subclass inherits from a baseclass. The baseclass defines a set of virtual member functions for which the implementation can be overriden by the subclass. The canonical example is a drawing library for shapes:
+
+\begin{minipage}{\linewidth}
+	\lstinputlisting[language=C++,
+	                   %linebackgroundcolor={% }
+	  ]{code/shape-0.cpp}
+\end{minipage}
+
+
+\begin{minipage}{\linewidth}
+	\lstinputlisting[language=C++,
+	                   %linebackgroundcolor={% }
+	  ]{code/shape-1.cpp}
+\end{minipage}
+
+\comment{vtable implementation?}
+

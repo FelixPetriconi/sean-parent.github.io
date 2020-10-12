@@ -1,0 +1,63 @@
+% !TEX root = better-code-print.tex
+
+\input{half-title}
+
+\frontmatter
+\tableofcontents
+
+%\input{content/editor-note}
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+\label{Preface}
+\subfile{content/00/preface}
+
+\mainmatter
+
+%\part*{Part One}
+%\addcontentsline{toc}{part}{Part One}
+
+\chapter{Types}\label{better-code-types}
+\subfile{content/01/types}
+
+\chapter{Algorithms}\label{algorithms}
+\subfile{content/02/algorithms}
+
+\chapter{Data Structures}\label{data-structures}
+\subfile{content/03/data-structures}
+
+\chapter{Runtime Polymorphism}\label{runtime-polymorphism}
+\subfile{content/04/runtime-polymorphism}
+
+\chapter{Concurrency}\label{concurrency}
+\subfile{content/05/concurrency}
+
+\chapter{Relationships}\label{relationships}
+\subfile{content/06/relationships}
+
+\chapter{Epilogue}\label{epilogue}
+\subfile{content/07/epilogue}
+
+% \part*{Part Two}
+% \addcontentsline{toc}{part}{Part Two}
+
+
+\backmatter
+
+\appendix
+\addcontentsline{toc}{part}{Appendices}
+\input{index}
+
+% \makeatletter\@openrightfalse
+% \chapter*{Acknowledgments}\label{acknowledgments}
+% \addcontentsline{toc}{chapter}{Acknowledgments}
+% \input{acknowledgments}
+
+% \chapter*{Colophon}\label{colophon}
+% \addcontentsline{toc}{chapter}{Colophon}
+% \input{colophon}
+
+% \chapter*{Copyleft notice}\label{copyleft}
+% \addcontentsline{toc}{chapter}{Copyleft notice}
+% \input{free-software}
+% \@openrighttrue\makeatother
+%\afterpage{\blankpage}
