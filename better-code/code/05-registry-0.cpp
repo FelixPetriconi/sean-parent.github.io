@@ -6,7 +6,7 @@ class registry {
         unique_lock lock{mutex};
         _map.emplace(move(key), move(value));
     }
-    
+        
     auto get(const string& key) -> string {
         unique_lock lock{mutex};
         return _map.at(key);

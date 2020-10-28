@@ -9,7 +9,7 @@ class correct_cow {
     explicit correct_cow(const T& x) : object_m(new object_t(x)) { }
     ~correct_cow() { if (0 == --object_m->count_m) delete object_m; }
     correct_cow(const correct_cow& x) : object_m(x.object_m) { ++object_m->count_m; }
-
+    
     correct_cow& operator=(const T& x) {
         if (object_m->count_m == 1) object_m->data_m = x;
         else {
