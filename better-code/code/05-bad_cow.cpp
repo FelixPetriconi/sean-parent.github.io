@@ -1,21 +1,23 @@
 template <typename T>
 class bad_cow {
     struct object_t {
-        explicit object_t(const T& x) : data_m(x) {}
-        atomic<int> count_m{1};
-        T           data_m; };
-    object_t* object_m;
+        explicit object_t(const T& x) : _data(x) {}
+        atomic<int> _count{1};
+        T           _data; 
+    };
+    object_t* _object;
+
  public:
-    explicit bad_cow(const T& x) : object_m(new object_t(x)) { }
-    ~bad_cow() { if (0 == --object_m->count_m) delete object_m; }
-    bad_cow(const bad_cow& x) : object_m(x.object_m) { ++object_m->count_m; }
+    explicit bad_cow(const T& x) : _object(new object_t(x)) { }
+    ~bad_cow() { if (0 == --_object->_count) delete _object; }
+    bad_cow(const bad_cow& x) : _object(x._object) { ++_object->_count; }
     
     bad_cow& operator=(const T& x) {
-        if (object_m->count_m == 1) object_m->data_m = x;     // position 1
+        if (_object->_count == 1) _object->_data = x;
         else {
             object_t* tmp = new object_t(x);
-            --object_m->count_m;                              // position 2
-            object_m = tmp;
+            --_object->_count;
+            _object = tmp;
         }
         return *this;
     }

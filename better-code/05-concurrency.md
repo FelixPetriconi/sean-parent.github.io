@@ -4,6 +4,7 @@ tagline: No Raw Synchronization Primitives
 mathjax: true
 layout: book-page
 tags: [ better-code ]
+chapter: 5
 ---
 
 ### Motivation
@@ -32,11 +33,11 @@ For example, the following is a snippet from a copy-on-write data type, this is 
 
 {% include code.md name='05-bad_cow' caption='incorrect copy on write' %}
 
-The highlighted lines {::comment} how? {:/comment} contain a subtle race condition. The `if` statement at _position 1_ is checking the value of an atomic count to see if it is `1`. The `else` statement handles the case where it is not `1`. Within the else statement the count is decremented at _position 2_. The problem is that if decrementing the count results in a value of `0` then the object stored in `object_m` should be deleted. The code fails to check for this case, and so an object may be leaked.
+The highlighted lines {::comment} how? {:/comment} contain a subtle race condition. The `if` statement at line 16 is checking the value of an atomic count to see if it is `1`. The `else` statement handles the case where it is not `1`. Within the else statement the count is decremented at line 19. The problem is that if decrementing the count results in a value of `0` then the object stored in `object_m` should be deleted. The code fails to check for this case, and so an object may be leaked.
 
 The initial test to see if the count was `1` isn't sufficient, between that check and when the count is decremented another thread may have released ownership and decremented the count leaving this object instance as the sole owner.
 
-The fix is to test atomically with the decrement in the same statement, see _position 3_. The correct code is shown in shown below:
+The fix is to test atomically with the decrement in the same statement, line 19. The correct code is shown in shown below:
 
 {% include code.md name='05-correct_cow' caption='correct copy on write' %}
 
@@ -103,6 +104,7 @@ As well one can rewrite the `get` string operation. But the difference is, that 
 {% include code.md name='05-registry-2' caption='enhanced registry with queue' %}
 
 Why is this important to understand? Because any place I have a mutex in my code I can always make this transformation. I can always transform it into a serialized queue model. And that means that within the serialized queue model now anytime somebody comes along and says `set` here, regardless of the amount of work that set takes, the time it takes for `set` to return back to the caller is constant. So that means that I can add something like `set` an arbitrary set of value the whole vector of key value pairs. And to the caller that `set` will take just as much time as the previous `set` it's an on block okay so so this puts an upper bound now there's overhead in this right I've got to queue an item I've got to de-queue the item I've got to deal with futures if I've got results coming in if I'm calling this set as opposed to calling just set string set sync set string
+
 
 ### Develop Solution
 

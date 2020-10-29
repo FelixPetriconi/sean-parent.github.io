@@ -4,6 +4,7 @@ tagline: No Contradictions
 
 layout: book-page
 tags: [ better-code ]
+chapter: 6
 ---
 
 ### Motivation
