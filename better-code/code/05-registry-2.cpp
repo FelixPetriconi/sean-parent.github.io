@@ -13,7 +13,10 @@ public:
     
     void set(vector<pair<string, string>> sequence) {
         _q.async([_map = _map](vector<pair<string, string>> sequence) {
-            _map->insert(make_move_iterator(begin(sequence)), make_move_iterator(end(sequence)));
+            _map->insert(
+                make_move_iterator(begin(sequence)), 
+                make_move_iterator(end(sequence))
+            );
         }, move(sequence));
     }
     

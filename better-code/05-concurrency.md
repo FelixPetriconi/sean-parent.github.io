@@ -103,9 +103,16 @@ As well one can rewrite the `get` string operation. But the difference is, that 
 
 {% include code.md name='05-registry-2' caption='enhanced registry with queue' %}
 
-Why is this important to understand? Because any place I have a mutex in my code I can always make this transformation. I can always transform it into a serialized queue model. And that means that within the serialized queue model now anytime somebody comes along and says `set` here, regardless of the amount of work that set takes, the time it takes for `set` to return back to the caller is constant. So that means that I can add something like `set` an arbitrary set of value the whole vector of key value pairs. And to the caller that `set` will take just as much time as the previous `set` it's an on block okay so so this puts an upper bound now there's overhead in this right I've got to queue an item I've got to de-queue the item I've got to deal with futures if I've got results coming in if I'm calling this set as opposed to calling just set string set sync set string
+Why is this important to understand? Because any place I have a mutex in my code I can always make this transformation. I can always transform it into a serialized queue model. And that means that within the serialized queue model now anytime somebody comes along and says `set`, regardless of the amount of work that `set` takes, the time it takes for `set` to return back to the caller is constant. So that means that I can add something like `set` an arbitrary set of value the whole vector of key value pairs. And to the caller that `set` will take just as much time as the previous `set` it's an on block so this puts an upper bound now there's overhead in this right I've got to queue an item. I've got to de-queue the item I've got to deal with futures if I've got results coming in if I'm calling this set as opposed to calling just set string set sync set string
 
+### Motivation
+
+1st example export from ui with compression and possibility to cancel
+2nd example export group of images with compression and possibility to cancel
 
 ### Develop Solution
+
+1st solution Use futures 
+2nd solution Use channels
 
 ### Conclusion
