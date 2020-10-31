@@ -1,7 +1,6 @@
 ---
 title: Epilogue
-
-layout: page
+layout: better-page
 tags: [ better-code ]
 chapter: 7
 ---

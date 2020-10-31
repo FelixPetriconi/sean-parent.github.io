@@ -1,8 +1,7 @@
 ---
 title: Algorithms
 tagline: No Raw Loops
-
-layout: page
+layout: book-page
 tags: [ better-code ]
 chapter: 2
 ---

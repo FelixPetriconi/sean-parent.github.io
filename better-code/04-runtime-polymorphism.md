@@ -1,8 +1,7 @@
 ---
 title: Runtime Polymorphism
 tagline: No Public Inheritance
-
-layout: page
+layout: book-page
 tags: [ better-code ]
 chapter: 4
 ---
