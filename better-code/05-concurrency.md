@@ -31,9 +31,9 @@ For example, the following is a snippet from a copy-on-write[^cow_definition] da
 
 {% include code.md name='05-bad_cow' caption='Incorrect copy-on-write' %}
 
-The code contains a subtle race condition. The `if` statement at line 16 is checking the value of an atomic count to see if it is `1`. The `else` statement handles the case where it is not `1`. Within the else statement the count is decremented at line 19. The problem is that if decrementing the count results in a value of `0` then the object stored in `object_m` should be deleted. The code fails to check for this case, and so an object may be leaked.
+The code contains a subtle race condition. The `if` statement at line 16 is checking the value of an atomic count to see if it is 1. The `else` statement handles the case where it is not 1. Within the else statement the count is decremented at line 19. The problem is that if decrementing the count results in a value of 0 then the object stored in `_object` should be deleted. The code fails to check for this case, and so an object may be leaked.
 
-The initial test to see if the count was `1` isn't sufficient, between that check and when the count is decremented another thread may have released ownership and decremented the count leaving this object instance as the sole owner.
+The initial test to see if the count was 1 isn't sufficient, between that check and when the count is decremented another thread may have released ownership and decremented the count leaving this object instance as the sole owner.
 
 The fix is to test atomically with the decrement in the same statement, line 19. The correct code is shown in shown below:
 
@@ -51,7 +51,7 @@ Where the speedup $$S$$ is defined by this equation. $$P$$ is hereby the amount 
 Drawing the abscissa in logarithmic scale illustrates that there is only a speedup of 20 times, even when the system is running on 2048 cores or more and just 5% synchronization takes place.
 
 {::comment} Convert/Create new SVG image
-{% include figure.md name='figures/amdahl_log' caption="Amdahl's Law logarithmic scale" %}
+{% include figure.md name='amdahl_log' caption="Amdahl's Law logarithmic scale" %}
 {::/comment}
 
 ![Amdahl's Law](figures/amdahl_log.png){:height="40%" width="40%"}
@@ -60,7 +60,7 @@ Amdahl's Law Logarithmic Scale
 Since most desktop or mobile processors have less than 64 cores, it is better to take a look at the graph with linear scale. Each line below the diagonal represents 10% more of serialisation. So if the application just have 10% of serialisation and it is running on 16 cores then there is only a speed-up just a little better than factor of six.
 
 {::comment} Convert/Create new SVG image
-{% include figure.md name='figures/amdahl_lin' caption="Amdahl's Law linear scale" %}
+{% include figure.md name='amdahl_lin' caption="Amdahl's Law linear scale" %}
 {::/comment}
 ![Amdahl's Law](figures/amdahl_lin.png){:height="40%" width="40%"}
 Amdahl's Law Linear Scale
@@ -69,11 +69,7 @@ So Amdahl's law has a huge impact. Serialization doesn't mean only locking on a 
 
 An often used model for implementing exclusive access to an object by multiple threads is this:
 
-{::comment} Convert/Create new SVG image
-{% include figure.md name='figures/exclusive_access' caption="Exclusive access by different threads" %}
-{::/comment}
-
-| ![Object which needs exclusive access](figures/TraditionalLock01.png) | ![Exclusive access by one thread](figures/TraditionalLock02.png) | ![Exclusive access by different thread](figures/TraditionalLock03.png) |
+{% include figure.md name='05-traditional_locking' caption="Exclusive access by different threads" %}
 
 As long as one thread has exclusive access to the object all other threads have to wait until they get the access right. 
 
@@ -89,7 +85,7 @@ For a better understanding what shall be actually achieved by using the locks it
 
 So why is this an important sentence? It means that one can always think about mutexes as if one has some set of interleaved operations. 
 
-{% include figure.md name='sequential_operations' caption='Sequential Operations' %}
+{% include figure.md name='05-sequential_operations' caption='Sequential Operations' %}
 
 * A mutex serializes a set of operations, $$Op_n$$, where the operation is the code executed while the mutex is locked
 * Operations are interleaved and may be executed in any order and may be repeated
