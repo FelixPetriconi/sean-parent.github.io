@@ -25,7 +25,7 @@ A _raw synchronization primitive_ is a low level construct used to synchronize a
 
 ### Problems of _raw synchronization primitives_
 
-The first problem with raw synchronization primitives are that they are exceedingly error prone to use because, by definition, they require reasoning about non-local effects.
+The first problem with raw synchronization primitives is that they are exceedingly error prone to use because, by definition, they require reasoning about non-local effects.
 
 For example, the following is a snippet from a copy-on-write[^cow_definition] data type, this is a simplified version of code from a shipping system. 
 
@@ -33,22 +33,21 @@ For example, the following is a snippet from a copy-on-write[^cow_definition] da
 
 The code contains a subtle race condition. The `if` statement at line 16 is checking the value of an atomic count to see if it is 1. The `else` statement handles the case where it is not 1. Within the else statement the count is decremented at line 19. The problem is that if decrementing the count results in a value of 0 then the object stored in `_object` should be deleted. The code fails to check for this case, and so an object may be leaked.
 
-The initial test to see if the count was 1 isn't sufficient, between that check and when the count is decremented another thread may have released ownership and decremented the count leaving this object instance as the sole owner.
+The initial test to see if the count was 1 isn't sufficient, between that check and when the count is decremented and another thread may have released ownership and decremented the count leaving this object instance as the sole owner.
 
 The fix is to test atomically with the decrement in the same statement, line 19. The correct code is shown in shown below:
 
-{% include code.md name='05-correct_cow' caption='correct copy on write' %}
+{% include code.md name='05-correct_cow' caption='Correct copy-on-write' %}
 
-The code of the complete, correct implementations is available online[^cow]
+The code of the complete, correct implementations is available online[^cow].
 
 Another problem with raw synchronization primitives is that their use can have a large negative impact on system performance. To understand why, we need to understand Amdahl's Law.
 
 The intuition behind Amdahl's Law is that if a part of system takes time x to complete on a single core or processor, then it will encounter a speedup of y if it is run on y cores, but only if no synchronization takes places between the different cores or processors. 
-
 $$S(N) = \frac{1}{(1-P)+\frac{P}{N}}$$
 Where the speedup $$S$$ is defined by this equation. $$P$$ is hereby the amount of synchronization in the range of $$[0 .. 1]$$ and $$N$$ the number of cores or processors.
 
-Drawing the abscissa in logarithmic scale illustrates that there is only a speedup of 20 times, even when the system is running on 2048 cores or more and just 5% synchronization takes place.
+Drawing the abscissa in logarithmic scale illustrates that there is only a speedup of 20 times, even when the system is running on 2048 or more cores and just 5% synchronization takes place.
 
 {::comment} Convert/Create new SVG image
 {% include figure.md name='amdahl_log' caption="Amdahl's Law logarithmic scale" %}
@@ -57,7 +56,7 @@ Drawing the abscissa in logarithmic scale illustrates that there is only a speed
 ![Amdahl's Law](figures/amdahl_log.png){:height="40%" width="40%"}
 Amdahl's Law Logarithmic Scale
 
-Since most desktop or mobile processors have less than 64 cores, it is better to take a look at the graph with linear scale. Each line below the diagonal represents 10% more of serialisation. So if the application just have 10% of serialisation and it is running on 16 cores then there is only a speed-up just a little better than factor of six.
+Since most desktop or mobile processors have less than 64 cores, it is better to take a look at the graph with linear scale. Each line below the diagonal represents 10% more of serialisation. So if the application just has 10% of serialisation and it is running on 16 cores then the speed-up is just a little better than factor of six.
 
 {::comment} Convert/Create new SVG image
 {% include figure.md name='amdahl_lin' caption="Amdahl's Law linear scale" %}
@@ -73,7 +72,7 @@ An often used model for implementing exclusive access to an object by multiple t
 
 As long as one thread has exclusive access to the object all other threads have to wait until they get the access right. 
 
-This is a horrible horrible way to think about threading. The goal has to be to minimize waiting at all costs. David Butenhof, one of the POSIX implementors, coined the phrase that mutex should be better named bottleneck, because of the property of slowing down an application[^butenhof]
+This is a horrible way to think about threading. The goal has to be to minimize waiting at all costs. David Butenhof, one of the POSIX implementors, coined the phrase that mutex should be better named bottleneck, because of the property of slowing down an application[^butenhof].
 
 In the following, let's take a look at a traditional piece of code:
 
@@ -94,18 +93,19 @@ So why is this an important sentence? It means that one can always think about m
 * Each operation may yield a result, $$r_m$$, which can communicate information about the state of $$x$$ while it’s associated operation was executed
 * The same is true of all atomic operations
 
-The same is true of all atomic operations. So there is not a lot of difference between an `std::atomic`. In fact there is a call on `std::atomic` that returns `true`, if it is lock free. This means the processor supports to do that as an atomic item within the processor or is there not processor support and the compiler has to generate a mutex pair to lock, make the change on the atomic operation, and do the unlock. So all that mutexes and locks are the way to construct atomic operations. 
+So there is not a lot of difference between an `std::atomic`. In fact there is a call on `std::atomic` that returns `true`, if it is lock free. This means the processor supports to do that as an atomic item within the processor or is there not processor support and the compiler has to generate a mutex pair to lock, make the change on the atomic operation, and do the unlock. So all that mutexes and locks are the way to construct atomic operations. 
 
 That means that any piece of code that has a mutex can be transformed into a queued model. This idea applied to the registry example from above leads to this:
 
 {% include code.md name='05-registry-1' caption='registry with queue' %}
 
-Given that there is a serial queue `_q` with an `async` function which executes the passed item and it uses the same calling conventions as `std::async`. Hereby with the difference that it guarantees that that the next item being processed in that queue doesn't start until the previous one is completed. Then one can rewrite the `set` string function to be executed with `_q.async`.
-As well one can rewrite the `get` string operation. But the difference is, that one needs the result back out, paired with that particular `get`. It is realized here with a future. (Futures will be covered later in more detail.) So the result of the `get` function, e.g. with a continuation, can be used whenever the `key` is hashed and and the lookup in the hash is completed.
+Given that there is a serial queue `_q` with an `async` function which executes the passed item and it uses the same calling conventions as `std::async`. Hereby with the difference that it guarantees that the next item being processed in that queue doesn't start until the previous one is completed. Then one can rewrite the `set` string function to be executed with `_q.async`.
+As well one can rewrite the `get` string operation. But here the difference is, that one needs the result back out, paired with that particular `get`. It is realized here with a future. (Futures will be covered later in more detail.) So the result of the `get` function, e.g. with a continuation, can be used whenever the `key` is hashed and and the lookup in the hash is completed.
 
 {% include code.md name='05-registry-2' caption='enhanced registry with queue' %}
 
-Why is this important to understand? Because any place I have a mutex in my code I can always make this transformation. I can always transform it into a serialized queue model. And that means that within the serialized queue model now anytime somebody comes along and says `set`, regardless of the amount of work that `set` takes, the time it takes for `set` to return back to the caller is constant. So that means that I can add something like `set` an arbitrary set of value the whole vector of key value pairs. And to the caller that `set` will take just as much time as the previous `set` it's an on block so this puts an upper bound now there's overhead in this right I've got to queue an item. I've got to de-queue the item I've got to deal with futures if I've got results coming in if I'm calling this set as opposed to calling just set string set sync set string
+Why is it important to understand this concept? Because at any place with a mutex in the code one can always make this transformation. One can always transform it into a serialized queue model. And this means that within the serialized queue model anytime somebody can come along and calls `set`, regardless of the amount of work that `set` takes, the time it takes for `set` to return back to the caller itself constant. This means as well that one can add something like an arbitrary `set`, e.g a whole vector of key value pairs. And to the caller this `set` will take just as much time as the previous `set`. It's a non blocking operation with an upper bound of overhead. 
+
 
 ### Motivation
 
